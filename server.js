@@ -11,7 +11,7 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 const app = express();
-const PORT = process.env.PORT || 5000; // Switch back to 5000 since there is no concurrently anymore
+const PORT = process.env.PORT || 7860; // Port 7860 is required by Hugging Face Spaces
 
 app.use(compression());
 app.use(cors());
