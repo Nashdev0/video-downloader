@@ -5,6 +5,7 @@ import { spawn } from 'child_process';
 import path from 'path';
 import fs from 'fs';
 import { fileURLToPath } from 'url';
+import ffmpegPath from 'ffmpeg-static';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -112,6 +113,7 @@ app.get('/api/download', (req, res) => {
     url,
     '-f', formatSelector,
     '--merge-output-format', 'mp4',
+    '--ffmpeg-location', ffmpegPath,
     '-o', filepath
   ];
 
