@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Nash Downloader</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            background: '#0f172a',
+            surface: '#1e293b',
+            primary: '#3b82f6',
+            primaryHover: '#2563eb'
+          }
+        }
+      }
+    }
+  </script>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body class="bg-background text-gray-100 min-h-screen font-sans antialiased">
+  <div class="min-h-screen flex flex-col items-center py-16 px-4 relative overflow-hidden">
+    <!-- Background gradients -->
+    <div class="absolute top-[-10%] left-[-10%] w-96 h-96 bg-gradient-to-br from-primary/10 to-transparent rounded-full pointer-events-none"></div>
+    <div class="absolute bottom-[-10%] right-[-10%] w-96 h-96 bg-gradient-to-tl from-purple-500/10 to-transparent rounded-full pointer-events-none"></div>
+
+    <div class="max-w-3xl w-full z-10 space-y-12">
+      <!-- Hero Section -->
+      <div class="text-center space-y-4">
+        <div class="inline-flex items-center justify-center p-3 bg-surface border border-gray-700 rounded-2xl mb-4 shadow-lg">
+          <i data-lucide="video" class="w-10 h-10 text-primary"></i>
+        </div>
+        <h1 class="text-4xl md:text-6xl font-extrabold tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-purple-500">
+          Nash Downloader
+        </h1>
+        <p class="text-lg text-gray-400 max-w-2xl mx-auto leading-relaxed">
+          Download your favorite videos from YouTube, TikTok, Instagram, and more in stunning high quality.
+          Fast, free, dan hemat kuota.
+        </p>
+      </div>
+
+      <!-- Main Card -->
+      <div class="bg-surface border border-gray-700 p-6 md:p-8 rounded-3xl shadow-2xl space-y-6">
+        
+        <div class="space-y-4">
+          <label class="block text-sm font-medium text-gray-300 ml-1">Video URL</label>
+          <input
+            type="text"
+            id="url-input"
+            placeholder="Paste video link here (e.g., https://youtube.com/watch?v=...)"
+            class="w-full px-5 py-4 bg-gray-900/50 border border-gray-700 rounded-xl text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all"
+          />
+        </div>
+
+        <div class="flex flex-col md:flex-row gap-4">
+          <div class="flex-1 space-y-4">
+            <label class="block text-sm font-medium text-gray-300 ml-1">Resolution</label>
+            <div class="relative">
+              <select
+                id="resolution-select"
+                class="w-full appearance-none px-5 py-4 bg-gray-900/50 border border-gray-700 rounded-xl text-white focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all cursor-pointer"
+              >
+                <option value="1080p">1080p (Full HD)</option>
+                <option value="720p">720p (HD)</option>
+                <option value="360p">360p (SD)</option>
+              </select>
+              <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-4 text-gray-400">
+                <svg class="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
+                  <path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z"/>
+                </svg>
+              </div>
+            </div>
+          </div>
+
+          <div class="flex-1 flex items-end">
+            <button
+              id="download-btn"
+              disabled
+              class="w-full py-4 px-6 rounded-xl font-bold text-white flex items-center justify-center gap-2 transition-all shadow-lg bg-gray-700 cursor-not-allowed opacity-70"
+            >
+              <i data-lucide="download" class="w-5 h-5"></i> <span>Download Now</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Video Info Preview -->
+        <div id="info-loading" class="hidden animate-pulse flex items-center gap-4 bg-gray-900/30 p-4 rounded-xl border border-gray-800">
+          <div class="w-24 h-16 bg-gray-800 rounded-lg"></div>
+          <div class="space-y-2 flex-1">
+            <div class="h-4 bg-gray-800 rounded w-3/4"></div>
+            <div class="h-3 bg-gray-800 rounded w-1/4"></div>
+          </div>
+        </div>
+
+        <div id="info-preview" class="hidden flex items-start gap-4 bg-gray-900/40 p-4 rounded-xl border border-gray-700 transition-all">
+          <img id="info-thumbnail" src="" alt="Thumbnail" loading="lazy" class="w-28 h-16 object-cover rounded-lg shadow-md hidden" />
+          <div id="info-no-thumbnail" class="w-28 h-16 bg-gray-800 flex items-center justify-center rounded-lg hidden">
+            <i data-lucide="film" class="w-6 h-6 text-gray-500"></i>
+          </div>
+          <div class="flex-1 min-w-0">
+            <h3 id="info-title" class="text-white font-medium truncate"></h3>
+            <p id="info-duration" class="text-sm text-gray-400 mt-1"></p>
+          </div>
+        </div>
+
+        <!-- Progress Section -->
+        <div id="progress-container" class="hidden space-y-2 pt-4 border-t border-gray-700">
+          <div class="flex justify-between text-sm">
+            <span id="progress-text" class="text-gray-300">Downloading video & audio...</span>
+            <span id="progress-percentage" class="text-primary font-medium">0%</span>
+          </div>
+          <div class="w-full bg-gray-800 rounded-full h-2.5 overflow-hidden">
+            <div id="progress-bar" class="h-2.5 rounded-full bg-primary transition-all duration-300" style="width: 0%"></div>
+          </div>
+        </div>
+
+        <!-- Error Toast -->
+        <div id="error-toast" class="hidden flex items-center gap-3 p-4 bg-red-500/10 border border-red-500/20 text-red-400 rounded-xl">
+          <i data-lucide="alert-circle" class="w-5 h-5 flex-shrink-0"></i>
+          <p id="error-msg" class="text-sm"></p>
+        </div>
+      </div>
+      
+      <!-- Footer info -->
+      <div class="text-center text-sm text-gray-500">
+        <p>By using this tool, you agree not to download copyrighted material without permission.</p>
+      </div>
+    </div>
+  </div>
+  <script src="script.js"></script>
+</body>
+</html>
