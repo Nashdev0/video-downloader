@@ -5,7 +5,6 @@ import { spawn } from 'child_process';
 import path from 'path';
 import fs from 'fs';
 import { fileURLToPath } from 'url';
-import ffmpegPath from 'ffmpeg-static';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -53,9 +52,15 @@ app.post('/api/info', (req, res) => {
     return res.status(400).json({ error: 'URL is required' });
   }
 
-  // Use yt-dlp to dump json info
-  const ytDlpPath = path.join(__dirname, 'yt-dlp');
-  const ytdlp = spawn(ytDlpPath, ['--dump-json', url]);
+  // Use global yt-dlp with anti-blocking arguments
+  const ytDlpPath = 'yt-dlp';
+  const ytdlp = spawn(ytDlpPath, [
+    '--dump-json', 
+    '--no-warnings', 
+    '--extractor-args', 'youtube:player_client=android,ios',
+    '--socket-timeout', '15',
+    url
+  ]);
 
   let data = '';
   let errorData = '';
@@ -113,11 +118,12 @@ app.get('/api/download', (req, res) => {
     url,
     '-f', formatSelector,
     '--merge-output-format', 'mp4',
-    '--ffmpeg-location', ffmpegPath,
+    '--extractor-args', 'youtube:player_client=android,ios',
+    '--socket-timeout', '15',
     '-o', filepath
   ];
 
-  const ytDlpPath = path.join(__dirname, 'yt-dlp');
+  const ytDlpPath = 'yt-dlp';
   const ytdlp = spawn(ytDlpPath, args);
 
   // Use SSE to send progress to the client

@@ -1,29 +1,31 @@
-FROM node:18-bullseye-slim
+FROM python:3.9-slim
 
 WORKDIR /app
 
-# Salin file konfigurasi
-COPY package*.json ./
+# Install Node.js, npm, dan ffmpeg (resmi dari sistem)
+RUN apt-get update && apt-get install -y curl ffmpeg \
+    && curl -fsSL https://deb.nodesource.com/setup_18.x | bash - \
+    && apt-get install -y nodejs \
+    && apt-get clean \
+    && rm -rf /var/lib/apt/lists/*
+
+# Install yt-dlp resmi via pip (dijamin kompatibel dan selalu jalan)
+RUN pip install --no-cache-dir yt-dlp
 
 # Install dependencies Node.js
+COPY package*.json ./
 RUN npm install
 
-# Salin semua kode ke dalam container
+# Salin semua file
 COPY . .
 
-# Beri izin eksekusi pada yt-dlp dan ffmpeg-static (jika ada)
-RUN chmod +x yt-dlp
-
-# Buat folder downloads dan beri akses penuh agar Hugging Face bisa menulis file
+# Buat folder downloads
 RUN mkdir -p downloads && chmod -R 777 downloads
 
-# Hugging Face mewajibkan aplikasi berjalan sebagai user non-root (ID 1000)
-# Base image node sudah memiliki user dengan UID 1000
+# Hugging Face permissions
 RUN chown -R 1000:1000 /app
 USER 1000
 
-# Ekspos port yang digunakan Hugging Face Spaces
 EXPOSE 7860
 
-# Jalankan server
 CMD ["npm", "start"]
