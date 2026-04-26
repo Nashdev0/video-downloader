@@ -18,9 +18,9 @@ RUN chmod +x yt-dlp
 RUN mkdir -p downloads && chmod -R 777 downloads
 
 # Hugging Face mewajibkan aplikasi berjalan sebagai user non-root (ID 1000)
-RUN useradd -m -u 1000 user
-RUN chown -R user:user /app
-USER user
+# Base image node sudah memiliki user dengan UID 1000
+RUN chown -R 1000:1000 /app
+USER 1000
 
 # Ekspos port yang digunakan Hugging Face Spaces
 EXPOSE 7860
